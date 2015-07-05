@@ -1,0 +1,37 @@
+# Module short name
+MODULEIDNAME       = t0xirclib
+
+# Module version number
+MODULEVERSION      = 1.0.1-1
+
+# Module release date
+MODULEDATE         = 2002/08/14
+
+# Module long description
+MODULEDESCRIPTION  = A PHP class that enable your applications to interact with the popular IRC bot Eggdrop.
+
+# Module dependencies
+MODULEDEPENDENCIES = ampoliros[2.7.3]
+
+# Module suggestions
+MODULESUGGESTIONS  =
+
+MODULE_AUTHOR        = Vincent Negrier
+
+MODULE_AUTHOR_EMAIL  = six@aegis-corp.org
+
+MODULE_AUTHOR_SITE   = http://t0xirc.si.kz/
+
+MODULE_SUPPORT_EMAIL = six@t0x.net
+
+MODULE_BUGS_EMAIL    = six@t0x.net
+
+MODULE_COPYRIGHT     = Copyright (C) 2001-2002 Vincent Negrier aka. sIX <six@aegis-corp.org>
+
+MODULE_LICENSE       = GPL
+
+MODULE_LICENSE_FILE  = LICENSE
+
+MODULE_MAINTAINER	= Alex Pagnoni - Solarix
+
+MODULE_MAINTAINER_EMAIL	= alex.pagnoni@solarix.biz

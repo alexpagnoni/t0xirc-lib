@@ -1,0 +1,186 @@
+t0xirc, the aEGiS Eggdrop control class
+=======================================
+
+Copyright (C) 2001-2002 Vincent Negrier aka. sIX <six@aegis-corp.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+
+Introduction
+============
+
+t0xirc is a PHP class that enable your applications to interact with the
+popular IRC bot Eggdrop.
+
+You can use it to include a list of connected users on your web page, or even
+write a cli PHP script that runs in the background and give some intelligence
+to your idle bots. Usage is up to your imagination :)
+
+t0xirc's author is Vincent Negrier <six@aegis-corp.org> and its official 
+homepage is http://t0xirc.si.kz
+
+
+Documentation
+=============
+
+Object constructor
+------------------
+
+You have to instanciate a t0xirc_bot for each eggdrop you want to control. This
+is done with the following syntax :
+
+$mybot =& new t0xirc_bot( $bot_login , $bot_pass [, $bot_host [, $bot_port]] );
+
+The parameters are :
+
+$bot_login : an eggdrop login you have created for the script to run as
+$bot_pass : the corresponding eggdrop password
+$bot_host : the host to connect to (the one running eggdrop), default is 
+            localhost
+$bot_port : the port to connect to, default is 3333
+
+
+The set_* methods
+-----------------
+
+If you don't want to pass the init infos to the contructor, you can also use
+the following methods to set the bot configuration before connecting :
+
+$mybot->set_login( $bot_login );
+$mybot->set_pass( $bot_pass );
+$mybot->set_host( $bot_host );
+$mybot->set_port( $bot_port );
+
+
+The connect method
+------------------
+
+Once you have setup the login, pass, host and port you can call the connect 
+method to effectively connect to the bot like this :
+
+$ret = $mybot->connect();
+
+Connect returns true if the connection succeeded, and false if not.
+
+
+The action methods
+------------------
+
+There is a set of very simple methods to allow your application to execute
+actions on the eggdrop bot. Here is the complete list without detailed 
+documentation, I think this is self explanatory :)
+
+When $channel is optional, the default value is the default eggdrop channel.
+
+Here is the list :
+
+$mybot->set_topic( $topic );
+$mybot->say( $msg [, $channel]);
+$mybot->msg( $nick, $msg );
+$mybot->kick( $nick [, $channel]);
+$mybot->op( $nick [, $channel]);
+$mybot->deop( $nick [, $channel]);
+$mybot->voice( $nick [, $channel]);
+$mybot->devoice( $nick [, $channel]);
+
+
+The query properties and methods
+--------------------------------
+
+t0xirc is also able to monitor a channel and its users.
+
+You can read about everything you want from the $channel array property.
+
+$mybot->channel["name"] : name of the default eggdrop chan
+$mybot->channel["members"] : array of connected users
+
+each channel["members"][$nickname] is itself an array with the following cells:
+
+nickname : nick of the IRC user
+handle : eggdrop handle (if the user is declared and authentified by eggdrop)
+join : time of join
+level : level on the bot (see eggdrop documentation)
+idle : time idle
+user : ident of the user
+host : host of the user
+op : true or false, indicates if the user is a channel operator
+						
+The array is filled initially by the connect method, and can be updated 
+whenever you want by calling the update_channel method just like this :
+
+$mybot->update_channel();
+
+and the channel array will be regenerated.
+
+
+What if I want more interactivity ?
+-----------------------------------
+
+If your goal is to write a background process for controlling a bot's behaviour
+you have to use the callback capabilities of t0xirc.
+
+This is done by using the register_callback method (and also by its foo 
+unregister_callbacks).
+
+Another important one is the run method : once you have set up your callbacks,
+call it to loop (infinitely if no param given), and all your functions will
+be called on event reception.
+
+Here is a simple example :
+
+function public_txt_handler($nick, $msg) {
+
+	if (strpos($msg, "where?")!==false) $mybot->say("$nick: DTC");
+	echo "$nick said '$msg'\n";
+
+}
+
+function private_txt_handler($nick, $msg) {
+
+	if ($msg=="quit") exit;
+
+}
+
+$mybot =& new t0xirc_bot("login", "pass");
+$mybot->register_callback(TCB_PUBMSG, "public_txt_handler");
+$mybot->register_callback(TCB_PRIVMSG, "private_txt_handler");
+$mybot->connect();
+$mybot->say("hello world");
+$mybot->run();
+
+If you know the concept of callbacks you shouldn't have problems understanding
+how the whole thing works. If you don't, ask your AOL commercial contact or try
+printing.
+
+Here is the list of callbacks and a short description :
+
+TCB_PUBMSG ($nick, $text)        : channel text
+TCB_PUBACT ($nick, $text)        : channel action (/me blah)
+TCB_PRIVMSG ($nick, $text)       : private text
+TCB_PRIVACT ($nick, $text)       : private action
+TCB_SELF_PUBMSG ($nick, $text)   : self channel text
+TCB_JOIN ($nick, $host)          : channel join
+TCB_PART ($nick, $host)          : channel part
+TCB_KICK ($nick1, $nick2)        : channel kick
+TCB_NICK_CHANGE ($nick1, $nick2) : nickname change
+TCB_QUIT ($nick, $text)          : channel quit
+
+
+Is that all ?
+-------------
+
+Yep that's all. If you want to know more, check the source code and the 
+examples.
+
